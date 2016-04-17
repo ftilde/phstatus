@@ -1,0 +1,3 @@
+#! /bin/sh
+out=$(df -h / --output=avail | grep -v Avail)
+echo "√$out"

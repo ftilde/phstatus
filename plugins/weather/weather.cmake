@@ -1,0 +1,2 @@
+SET(PLUGIN_SOURCES weather.cpp)
+SET(PLUGIN_HEADERS weather.h)

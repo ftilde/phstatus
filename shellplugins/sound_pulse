@@ -1,0 +1,19 @@
+#! /bin/sh
+
+headphonePort="$1"
+activePort=$(pactl list sinks | sed -n "s/^.*Active Port: \(analog.*\)$/\1/p")
+
+vol_line=$(amixer get 'Master' -D 'pulse' | grep "Left:")
+vol_on=$(echo $vol_line | sed -n 's/^.*\(\[on\]\).*$/\1/p')
+
+if [ "$activePort" == "$headphonePort" ]; then
+  symbol="☊"
+else
+  symbol="♫"
+fi
+if [[ "$vol_on" ]]; then
+  vol_percentage=$(echo $vol_line | sed 's/^.*\[\(.*%\)\].*$/\1/g')
+  echo "$symbol $vol_percentage"
+else
+  echo "$symbol off"
+fi

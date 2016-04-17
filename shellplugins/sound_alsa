@@ -1,0 +1,13 @@
+#! /bin/sh
+
+
+vol_line=$(amixer get 'Master' | grep "Mono:")
+vol_on=$(echo $vol_line | sed -n 's/^.*\(\[on\]\).*$/\1/p')
+
+symbol="♫"
+if [[ "$vol_on" ]]; then
+  vol_percentage=$(echo $vol_line | sed 's/^.*\[\(.*%\)\].*$/\1/g')
+  echo "$symbol $vol_percentage"
+else
+  echo "$symbol off"
+fi
