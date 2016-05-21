@@ -8,6 +8,7 @@
 #include <curl/easy.h>
 #include <curl/curlbuild.h>
 
+
 namespace {
 
 size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
@@ -22,6 +23,7 @@ WeatherPlugin::WeatherPlugin(const PluginBaseConstructionData& baseConstructionD
     : Plugin(baseConstructionData)
     , url_("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + parameters["airportCode"].string_value("VQPR") + ".TXT")
     , updateThread_(nullptr)
+    , threadRunning_()
     , output_("")
     , curl_(nullptr)
     , maxRetries_(10)
@@ -31,18 +33,18 @@ WeatherPlugin::WeatherPlugin(const PluginBaseConstructionData& baseConstructionD
 }
 WeatherPlugin::~WeatherPlugin() {
     if(updateThread_) {
-        quitUpdateThread_.notify_all();
+        threadRunning_.clear();
+        updateThreadSignal_.notify_all();
         updateThread_->join();
     }
     curl_easy_cleanup(curl_);
 }
 void WeatherPlugin::update() {
-    // Make sure we only have one update thread running at a time
-    if(updateThread_) {
-        quitUpdateThread_.notify_all();
-        updateThread_->join();
+    if(!updateThread_) {
+        threadRunning_.test_and_set();
+        updateThread_ = std::make_unique<std::thread>(std::bind(&WeatherPlugin::getWeather, this));
     }
-    updateThread_ = std::make_unique<std::thread>(std::bind(&WeatherPlugin::getWeather, this));
+    updateThreadSignal_.notify_one();
 }
 static const std::regex temperatureRegex("Temperature: .*\\((-?\\d+) C\\)");
 static const std::regex humidityRegex("Relative Humidity: .*?(\\d+)%");
@@ -86,26 +88,27 @@ void WeatherPlugin::getWeather() {
     curl_easy_setopt(curl_, CURLOPT_WRITEDATA, &out);
 
     using clock = std::chrono::steady_clock;
-    clock::time_point nextTry = clock::now();
-    int ntry = 0;
-    for(; ntry<maxRetries_; ++ntry) {
-        /* Perform the request, res will get the return code */
-        CURLcode res = curl_easy_perform(curl_);
-        if (res == CURLE_OK) {
-            setOutputThreaded(formatWeatherFromReply(out));
-            return;
+    std::mutex someMutex;
+    std::unique_lock<std::mutex> someLock(someMutex);
+    clock::time_point nextTry;
+    while(threadRunning_.test_and_set()) {
+        nextTry = clock::now();
+        for(int ntry = 0; ntry<maxRetries_; ++ntry) {
+            /* Perform the request, res will get the return code */
+            CURLcode res = curl_easy_perform(curl_);
+            if (res == CURLE_OK) {
+                setOutputThreaded(formatWeatherFromReply(out));
+                break;
+            }
+            setOutputThreaded("No Internet Connection... (" + std::to_string(ntry) + ")");
+            nextTry += errorWaitTime_;
+            if(updateThreadSignal_.wait_until(someLock, nextTry) != std::cv_status::timeout) {
+                goto loop_end;
+            }
         }
-        setOutputThreaded("No Internet Connection... (" + std::to_string(ntry) + ")");
-        nextTry += errorWaitTime_;
-        std::this_thread::sleep_until(nextTry);
-        std::mutex someMutex;
-        std::unique_lock<std::mutex> someLock(someMutex);
-        if(quitUpdateThread_.wait_until(someLock, nextTry) != std::cv_status::timeout) {
-            return;
-        }
-    }
-    if(ntry == maxRetries_) {
-        return;
+        updateThreadSignal_.wait(someLock);
+loop_end:
+        ;
     }
 }
 void WeatherPlugin::setOutputThreaded(const std::string& str) {

@@ -5,6 +5,7 @@
 #include <thread>
 #include <memory>
 #include <condition_variable>
+#include <atomic>
 
 class WeatherPlugin : public Plugin {
 public:
@@ -19,7 +20,8 @@ private:
 
     const std::string url_;
     std::unique_ptr<std::thread> updateThread_;
-    std::condition_variable quitUpdateThread_;
+    std::condition_variable updateThreadSignal_;
+    std::atomic_flag threadRunning_;
 
     std::string output_;
     void* curl_;
