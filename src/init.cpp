@@ -29,7 +29,7 @@ void Status::mainLoop() {
     {
         std::unique_lock<std::mutex> lock(updateMutex_);
         long cycle = 0;
-        //updatePlugins();
+        updatePlugins();
         while(/*cycle<20*/ true) {
             if(updateRequested_.wait_until(lock, nextUpdate) == std::cv_status::timeout) {
                 nextUpdate += getTickDuration();
