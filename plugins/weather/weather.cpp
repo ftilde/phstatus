@@ -21,7 +21,7 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
 
 WeatherPlugin::WeatherPlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
     : Plugin(baseConstructionData)
-    , url_("http://weather.noaa.gov/pub/data/observations/metar/decoded/" + parameters["airportCode"].string_value("VQPR") + ".TXT")
+    , url_("http://tgftp.nws.noaa.gov/data/observations/metar/decoded/" + parameters["airportCode"].string_value("VQPR") + ".TXT")
     , updateThread_(nullptr)
     , threadRunning_()
     , output_("")
