@@ -3,6 +3,7 @@
 #include <sstream>
 #include <regex>
 #include <mutex>
+#include <cmath>
 
 #include "build_config.h"
 
@@ -44,7 +45,7 @@ void PulseVolumePlugin::writeVolumeInfo(const pa_sink_info i) {
     if(i.mute) {
         output += "off";
     } else {
-        unsigned int intvol = std::round(static_cast<float>(vol) / PA_VOLUME_NORM * 100);
+        unsigned int intvol = static_cast<unsigned int>(std::round(static_cast<float>(vol) / PA_VOLUME_NORM * 100));
         output += std::to_string(intvol) + "%";
     }
     setOutputThreaded(output);
