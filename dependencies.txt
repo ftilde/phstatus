@@ -1,0 +1,8 @@
+boost
+cmake
+pstreams
+g++
+i3ipc-glib-git
+libucl
+xrandr
+lemonbar
