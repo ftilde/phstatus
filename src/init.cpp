@@ -156,7 +156,8 @@ Status* Status::loadFromConfig(const std::string& configPath) {
         std::cerr << "Could not open config file " << configPath << std::endl;
         return nullptr;
     }
-    const ucl::Ucl rootNode = ucl::Ucl::parse(configInputStream, configParseError);
+    std::string configString((std::istreambuf_iterator<char>(configInputStream)), std::istreambuf_iterator<char>());
+    const ucl::Ucl rootNode = ucl::Ucl::parse(configString, configParseError);
     if(!configParseError.empty()) {
         std::cerr << "Could not parse config: " << configParseError << std::endl;
         return nullptr;
