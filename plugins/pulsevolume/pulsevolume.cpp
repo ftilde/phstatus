@@ -7,11 +7,6 @@
 
 #include "build_config.h"
 
-
-namespace {
-
-} // Anonymous namespace
-
 PulseVolumePlugin::PulseVolumePlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
     : Plugin(baseConstructionData)
     , mainLoop_(nullptr)
@@ -39,7 +34,8 @@ void PulseVolumePlugin::writeVolumeInfo(const pa_sink_info i) {
     if(portSymbols_.find(i.active_port->name) != portSymbols_.end()) {
         output = portSymbols_[i.active_port->name];
     } else {
-        output = "Vol:";
+        output = i.active_port->name;
+        output += ":";
     }
     output += " ";
     if(i.mute) {
