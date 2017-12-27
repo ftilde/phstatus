@@ -1,6 +1,6 @@
 SET(APPLICATION_NAME phstatus)
 SET(APPLICATION_VERSION 0.1.0)
-SET(DEFAULT_CONFIG_FILE_NAME ${APPLICATION_NAME}.ucl)
+SET(DEFAULT_CONFIG_FILE_NAME ${APPLICATION_NAME}.yaml)
 
 
 project(${APPLICATION_NAME} CXX)
@@ -96,21 +96,17 @@ else()
 endif()
 
 ###################################################################################
-# libucl
+# yaml-cpp
 ###################################################################################
-if(NOT PKG_CONFIG_FOUND)
-  message(FATAL_ERROR "pkg-config not found.")
-else()
-  pkg_check_modules(LIBUCL REQUIRED libucl)
-  if(LIBUCL_FOUND)
-    message(STATUS "libucl found")
-    include_directories(${LIBUCL_INCLUDE_DIRS})
-    link_directories(${LIBUCL_LIBRARY_DIRS})
-    target_link_libraries(${APPLICATION_NAME} ${LIBUCL_LIBRARIES})
-  else()
-    message(FATAL_ERROR "libucl not found")
-  endif()
-endif()
+FIND_PACKAGE(YAML-CPP REQUIRED)
+IF(NOT YAML-CPP_FOUND)
+  message(FATAL_ERROR "yaml-cpp not found")
+ELSE()
+  message(STATUS "yaml-cpp found: ${YAML_CPP_LIBRARIES}")
+ENDIF()
+INCLUDE_DIRECTORIES(${YAML_CPP_INCLUDE_DIR})
+LINK_DIRECTORIES(${YAML_CPP_LIBRARY_DIRS})
+TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${YAML_CPP_LIBRARIES})
 
 ###################################################################################
 # pthreads

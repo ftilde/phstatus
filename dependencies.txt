@@ -3,6 +3,6 @@ cmake
 pstreams
 g++
 i3ipc-glib-git
-libucl
+yaml-cpp
 xrandr
 lemonbar

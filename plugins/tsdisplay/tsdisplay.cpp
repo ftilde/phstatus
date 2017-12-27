@@ -3,6 +3,7 @@
 #include <map>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 #include <i3ipc-glib/i3ipc-glib.h>
 
@@ -21,7 +22,7 @@ TsState::TsState()
 }
 
 
-TsDisplay::TsDisplay(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
+TsDisplay::TsDisplay(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
     , currentTsState_()
     , updateThread_(nullptr)
@@ -95,6 +96,6 @@ bool TsDisplay::print(BarOutput& output) const {
     return true;
 }
 
-Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new TsDisplay(baseConstructionData, parameters);
 }

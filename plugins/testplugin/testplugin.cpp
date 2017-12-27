@@ -1,6 +1,6 @@
 #include "testplugin.h"
 
-TestPlugin::TestPlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl&)
+TestPlugin::TestPlugin(const PluginBaseConstructionData& baseConstructionData, const YAML::Node&)
     : Plugin(baseConstructionData)
     , numUpdates_(0)
 {
@@ -13,6 +13,6 @@ bool TestPlugin::print(BarOutput& output) const {
     return true;
 }
 
-Plugin* CREATE_PLUGIN(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new TestPlugin(baseConstructionData, parameters);
 }

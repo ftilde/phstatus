@@ -6,7 +6,7 @@
 #include <pstreams/pstream.h>
 #include <memory>
 
-#include <ucl++.h>
+#include <yaml-cpp/yaml.h>
 
 class LemonFormater : public Formater {
 public:
@@ -15,7 +15,7 @@ public:
 };
 class LemonBar : public Bar, public BarOutput {
 public:
-    LemonBar(ucl::Ucl node, ColorMap& colorMap);
+    LemonBar(YAML::Node node, ColorMap& colorMap);
     virtual ~LemonBar();
     const Formater& getFormater() const;
     BarOutput& beginLeftOuput();

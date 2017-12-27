@@ -1,23 +1,25 @@
 #include "pulsevolume.h"
+#include "config_parsing.h"
 
 #include <sstream>
 #include <regex>
 #include <mutex>
 #include <cmath>
+#include <iostream>
 
 #include "build_config.h"
 
-PulseVolumePlugin::PulseVolumePlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
+PulseVolumePlugin::PulseVolumePlugin(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
     , mainLoop_(nullptr)
     , context_(nullptr)
     , output_("")
-    , sinkName_(parameters["sinkName"].string_value("@DEFAULT_SINK@"))
+    , sinkName_(readOr(parameters["sinkName"], std::string("@DEFAULT_SINK@")))
     , portSymbols_()
 {
     pulseInit();
-    for(auto& elem : parameters["portSymbols"]) {
-        portSymbols_[elem.key()] = elem.string_value();
+    for(const auto& elem : parameters["portSymbols"]) {
+        portSymbols_[elem.first.as<std::string>()] = elem.second.as<std::string>();
     }
 }
 PulseVolumePlugin::~PulseVolumePlugin() {
@@ -187,6 +189,6 @@ bool PulseVolumePlugin::print(BarOutput& output) const {
     return !output_.empty();
 }
 
-Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new PulseVolumePlugin(baseConstructionData, parameters);
 }

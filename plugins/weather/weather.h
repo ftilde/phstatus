@@ -9,7 +9,7 @@
 
 class WeatherPlugin : public Plugin {
 public:
-    WeatherPlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    WeatherPlugin(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
     ~WeatherPlugin();
     void update();
     bool print(BarOutput& output) const;
@@ -30,5 +30,5 @@ private:
 };
 
 extern "C" {
-    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
 }

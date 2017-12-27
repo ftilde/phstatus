@@ -2,6 +2,7 @@
 #include "plugin.h"
 #include "pluginloader.h"
 #include "../bars/lemonbar.h"
+#include "config_parsing.h"
 
 #include <iostream>
 #include <functional>
@@ -9,7 +10,7 @@
 #include <chrono>
 #include <thread>
 
-#include <ucl++.h>
+#include <yaml-cpp/yaml.h>
 
 Status::Status(Bar* bar, i3ipcConnection* i3con, i3ipcConnection* i3conEvents, std::unique_ptr<ColorMap> colorMap, const std::string& separator, unsigned int tickDurationInMs)
     : bar_(bar)
@@ -119,16 +120,16 @@ void Status::addPluginRight(Plugin* plugin) {
     }
 }
 
-static Plugin* loadPluginFromConfig(const PluginLoader& pLoader, const StaticPluginBaseConstructionData& pluginInitInfo, const ucl::Ucl& pluginNode) {
-    std::string name = pluginNode[std::string("name")].string_value();
+static Plugin* loadPluginFromConfig(const PluginLoader& pLoader, const StaticPluginBaseConstructionData& pluginInitInfo, const YAML::Node& pluginNode) {
+    std::string name = pluginNode[std::string("name")].as<std::string>();
     PluginBaseConstructionData constructionData {
         0,
         EVT_NO_EVENT,
         pluginInitInfo
     };
-    constructionData.updateInterval_ = pluginNode["updatePeriod"].int_value(0);
+    constructionData.updateInterval_ = readOr(pluginNode["updatePeriod"],0);
     for(auto updateHookNode : pluginNode["updateHooks"]) {
-        std::string updateHook = updateHookNode.string_value();
+        std::string updateHook = updateHookNode.as<std::string>();
         if(updateHook == "workspace") {
             constructionData.updateHooks_ |= EVT_WORKSPACE;
         } else if(updateHook == "output") {
@@ -149,25 +150,25 @@ static Plugin* loadPluginFromConfig(const PluginLoader& pLoader, const StaticPlu
 }
 
 Status* Status::loadFromConfig(const std::string& configPath) {
-    std::string configParseError;
-    std::ifstream configInputStream;
-    configInputStream.open(configPath);
-    if(!configInputStream.is_open()) {
-        std::cerr << "Could not open config file " << configPath << std::endl;
+
+    YAML::Node rootNode;
+    try {
+        rootNode = YAML::LoadFile(configPath);
+    } catch(YAML::ParserException e) {
+        std::cerr << "Could not parse config file " << configPath << std::endl;
+        std::cerr << e.what() << std::endl;
+        //TODO show some errors or something
         return nullptr;
-    }
-    std::string configString((std::istreambuf_iterator<char>(configInputStream)), std::istreambuf_iterator<char>());
-    const ucl::Ucl rootNode = ucl::Ucl::parse(configString, configParseError);
-    if(!configParseError.empty()) {
-        std::cerr << "Could not parse config: " << configParseError << std::endl;
+    } catch(YAML::BadFile e) {
+        std::cerr << "Could not open config file " << configPath << std::endl;
         return nullptr;
     }
 
     std::unique_ptr<ColorMap> colorMap = std::make_unique<ColorMap>(rootNode["colors"]);
     Bar* bar = new LemonBar(rootNode["bar"], *colorMap);
 
-    std::string separator = bar->getFormater().addColor(rootNode["separator"].string_value("|"), (*colorMap)[rootNode["separatorColor"].int_value(ColorIndex::BRIGHT_BLACK)]);
-    int tickLength = 1000*rootNode["tickLength"].number_value(); //Convert to ms
+    std::string separator = bar->getFormater().addColor(readOr(rootNode["separator"], std::string("|")), (*colorMap)[readOr<unsigned int>(rootNode["separatorColor"], ColorIndex::BRIGHT_BLACK)]);
+    int tickLength = static_cast<int>(std::round(1000*rootNode["tickLength"].as<float>())); //Convert to ms
 
     GError* error = nullptr;
     i3ipcConnection* i3con;

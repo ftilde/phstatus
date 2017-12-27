@@ -15,7 +15,7 @@ struct TsState {
 
 class TsDisplay : public Plugin {
 public:
-    TsDisplay(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    TsDisplay(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
     virtual ~TsDisplay();
 
     void updateLoop();
@@ -36,5 +36,5 @@ private:
 };
 
 extern "C" {
-    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
 }

@@ -1,15 +1,17 @@
 #include "i3activewindow.h"
+#include "config_parsing.h"
 
 #include <map>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 #include <i3ipc-glib/i3ipc-glib.h>
 
-I3ActiveWindow::I3ActiveWindow(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
+I3ActiveWindow::I3ActiveWindow(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
     , output_("")
-    , maxChars_(parameters["maxChars"].int_value(100))
+    , maxChars_(readOr(parameters["maxChars"], 100))
 {
 }
 void I3ActiveWindow::update() {
@@ -51,6 +53,6 @@ bool I3ActiveWindow::print(BarOutput& output) const {
     return !output_.empty();
 }
 
-Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new I3ActiveWindow(baseConstructionData, parameters);
 }

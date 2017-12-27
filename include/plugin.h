@@ -26,7 +26,7 @@
 extern "C"{
 #include <i3ipc-glib/i3ipc-glib.h>
 }
-#include <ucl++.h>
+#include <yaml-cpp/yaml.h>
 
 enum UpdateEvent {
     EVT_NO_EVENT         = 0,

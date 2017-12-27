@@ -21,7 +21,7 @@ PluginLoader::PluginLoader(const std::vector<std::string>&& binaryPluginPaths, c
 }
 PluginLoader::~PluginLoader() {
 }
-Plugin* PluginLoader::loadPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) const {
+Plugin* PluginLoader::loadPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) const {
     Plugin* output;
     output = loadExternalPlugin(name, baseConstructionData, parameters);
     if(output) {
@@ -37,14 +37,14 @@ Plugin* PluginLoader::loadPlugin(const std::string& name, const PluginBaseConstr
     if(name == #plugin_name ) { \
         return createPlugin_ ## plugin_name (baseConstructionData, parameters);\
     }
-Plugin* PluginLoader::loadBuiltinPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) const {
+Plugin* PluginLoader::loadBuiltinPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) const {
     @PLUGIN_LOAD_LIST@
     return nullptr;
 }
-Plugin* PluginLoader::loadExternalPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) const {
+Plugin* PluginLoader::loadExternalPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) const {
     return nullptr;
 }
-Plugin* PluginLoader::loadShellPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) const {
+Plugin* PluginLoader::loadShellPlugin(const std::string& name, const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) const {
     boost::filesystem::path namePath(name);
     for(const auto& pluginDir : shellPluginPaths_) {
         boost::filesystem::path pluginPath = boost::filesystem::path(pluginDir) / namePath;

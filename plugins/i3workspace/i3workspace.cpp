@@ -3,6 +3,7 @@
 #include <map>
 #include <algorithm>
 #include <cstring>
+#include <iostream>
 
 #include <i3ipc-glib/i3ipc-glib.h>
 
@@ -12,7 +13,7 @@ bool comparei3ipcWorkspaceReply(i3ipcWorkspaceReply* r1, i3ipcWorkspaceReply* r2
 }
 }
 
-I3Workspace::I3Workspace(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
+I3Workspace::I3Workspace(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
     , unfocusedColor_(getColorMap()[ColorIndex::WHITE])
     , focusedInactiveColor_(getColorMap()[ColorIndex::BLUE])
@@ -24,8 +25,8 @@ I3Workspace::I3Workspace(const PluginBaseConstructionData& baseConstructionData,
     , workspacePadding_(" ")
     , monitorNames_()
 {
-    for(auto monitor : parameters["monitorNames"]) {
-        monitorNames_.push_back(monitor.string_value());
+    for(const auto& monitor : parameters["monitorNames"]) {
+        monitorNames_.push_back(monitor.as<std::string>());
     }
 }
 void I3Workspace::update() {
@@ -69,6 +70,6 @@ bool I3Workspace::print(BarOutput& output) const {
     return !output_.empty();
 }
 
-Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new I3Workspace(baseConstructionData, parameters);
 }

@@ -1,15 +1,15 @@
 #include "shellplugin.h"
 #include <pstreams/pstream.h>
 
-ShellPlugin::ShellPlugin(const PluginBaseConstructionData& baseConstructionData, const std::string& scriptPath, const ucl::Ucl& parameters)
+ShellPlugin::ShellPlugin(const PluginBaseConstructionData& baseConstructionData, const std::string& scriptPath, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
     , output_("")
     , scriptPath_(scriptPath)
     , argv_()
 {
     argv_.push_back(scriptPath_);
-    for(auto& node : parameters) {
-        argv_.push_back(node.string_value());
+    for(const auto& node : parameters) {
+        argv_.push_back(node.as<std::string>());
     }
 }
 void ShellPlugin::update() {

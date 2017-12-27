@@ -1,4 +1,5 @@
 #include "lemonbar.h"
+#include "config_parsing.h"
 #include <iostream>
 #include <chrono>
 #include <regex>
@@ -48,7 +49,7 @@ std::string LemonFormater::addAction(const std::string& input, int mouseButton, 
 const Formater& LemonBar::getFormater() const {
     return formater_;
 }
-LemonBar::LemonBar(ucl::Ucl node, ColorMap& colorMap)
+LemonBar::LemonBar(YAML::Node node, ColorMap& colorMap)
     : formater_()
     , barProcess_()
 {
@@ -74,20 +75,20 @@ LemonBar::LemonBar(ucl::Ucl node, ColorMap& colorMap)
     argv.append(" ");
     argv.append("-B");
     argv.append(" \"");
-    argv.append(colorMap[node["backgroundColor"].int_value(ColorIndex::BLACK)].toString());
+    argv.append(colorMap[readOr<int>(node["backgroundColor"], ColorIndex::BLACK)].toString());
     argv.append("\" ");
     argv.append("-F");
     argv.append(" \"");
-    argv.append(colorMap[node["foregroundColor"].int_value(ColorIndex::BRIGHT_WHITE)].toString());
+    argv.append(colorMap[readOr<int>(node["foregroundColor"], ColorIndex::BRIGHT_WHITE)].toString());
     argv.append("\" ");
     argv.append("-f");
     argv.append(" ");
-    argv.append(node["font"].string_value("DejaVu-8"));
+    argv.append(readOr(node["font"], std::string("DejaVu-8")));
     argv.append(" ");
-    std::unique_ptr<Geometry> g = std::unique_ptr<Geometry>(getGeometry(node["output"].string_value("")));
+    std::unique_ptr<Geometry> g = std::unique_ptr<Geometry>(getGeometry(readOr(node["output"], std::string(""))));
     argv.append("-g");
     argv.append(" ");
-    argv.append(std::to_string(g->w) + "x" + std::to_string(node["height"].int_value(10)) + "+" + std::to_string(g->x) + "+0");
+    argv.append(std::to_string(g->w) + "x" + std::to_string(readOr(node["height"], 10)) + "+" + std::to_string(g->x) + "+0");
     argv.append(" ");
     if(node["bottom"]) {
         argv.append("-b");

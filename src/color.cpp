@@ -5,24 +5,29 @@
 #include <sstream>
 #include <iomanip>
 
-Color Color::parse(ucl::Ucl node, const Color& defaultColor) {
-    ucl::Ucl rNode = node["r"];
-    ucl::Ucl gNode = node["g"];
-    ucl::Ucl bNode = node["b"];
-    if(rNode.type() == UCL_FLOAT && gNode.type() == UCL_FLOAT && bNode.type() == UCL_FLOAT) {
-        double r = std::max(0.0, std::min(1.0, rNode.number_value()));
-        double g = std::max(0.0, std::min(1.0, gNode.number_value()));
-        double b = std::max(0.0, std::min(1.0, bNode.number_value()));
+Color Color::parse(const YAML::Node& node, const Color& defaultColor) {
+    YAML::Node rNode = node["r"];
+    YAML::Node gNode = node["g"];
+    YAML::Node bNode = node["b"];
+    try {
+        //TODO: this might not work correctly for (1,1,1) as white
+        uint8_t r = std::max(0, std::min(0xff, rNode.as<int>()));
+        uint8_t g = std::max(0, std::min(0xff, gNode.as<int>()));
+        uint8_t b = std::max(0, std::min(0xff, bNode.as<int>()));
         return Color(r, g, b);
-    } else if(rNode.type() == UCL_INT && gNode.type() == UCL_INT && bNode.type() == UCL_INT) {
-        uint8_t r = std::max(0l, std::min(0xffl, rNode.int_value()));
-        uint8_t g = std::max(0l, std::min(0xffl, gNode.int_value()));
-        uint8_t b = std::max(0l, std::min(0xffl, bNode.int_value()));
-        return Color(r, g, b);
-    } else {
-        //TODO error output?
-        return defaultColor;
+    } catch(...) {
     }
+
+    try {
+        double r = std::max(0.0, std::min(1.0, rNode.as<double>()));
+        double g = std::max(0.0, std::min(1.0, gNode.as<double>()));
+        double b = std::max(0.0, std::min(1.0, bNode.as<double>()));
+        return Color(r, g, b);
+    } catch(...) {
+    }
+
+    //TODO error output?
+    return defaultColor;
 }
 Color::Color(double r, double g, double b)
     : r_(r * std::numeric_limits<CHANNEL_PRECISION>::max())
@@ -72,11 +77,11 @@ Color ColorMap::DEFAULT_COLORS[] = {
     {1.0, 1.0, 1.0},
 };
 
-ColorMap::ColorMap(ucl::Ucl mapNode)
+ColorMap::ColorMap(const YAML::Node& mapNode)
     : colors_()
 {
     int i=0;
-    for(auto& colorNode : mapNode) {
+    for(const auto& colorNode : mapNode) {
         colors_.push_back(Color::parse(colorNode, DEFAULT_COLORS[i%16]));
         ++i;
     }

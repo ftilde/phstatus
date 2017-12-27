@@ -3,12 +3,12 @@
 #include <vector>
 #include <memory>
 
-#include <ucl++.h>
+#include <yaml-cpp/yaml.h>
 
 class Color {
     friend class ColorMap;
 public:
-    static Color parse(ucl::Ucl node, const Color& defaultColor);
+    static Color parse(const YAML::Node& node, const Color& defaultColor);
     Color(double r, double g, double b);
     uint8_t r() const;
     uint8_t g() const;
@@ -45,7 +45,7 @@ enum ColorIndex {
 
 class ColorMap {
 public:
-    ColorMap(ucl::Ucl node);
+    ColorMap(const YAML::Node& node);
     ColorMap(ColorMap&) = delete;
     ColorMap() = delete;
     ~ColorMap();

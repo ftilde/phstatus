@@ -1,4 +1,5 @@
 #include "weather.h"
+#include "config_parsing.h"
 
 #include <sstream>
 #include <regex>
@@ -17,9 +18,9 @@ size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
 
 } // Anonymous namespace
 
-WeatherPlugin::WeatherPlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters)
+WeatherPlugin::WeatherPlugin(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters)
     : Plugin(baseConstructionData)
-    , url_("http://tgftp.nws.noaa.gov/data/observations/metar/decoded/" + parameters["airportCode"].string_value("VQPR") + ".TXT")
+    , url_("http://tgftp.nws.noaa.gov/data/observations/metar/decoded/" + readOr(parameters["airportCode"], std::string("VQPR")) + ".TXT")
     , updateThread_(nullptr)
     , threadRunning_()
     , output_("")
@@ -121,6 +122,6 @@ bool WeatherPlugin::print(BarOutput& output) const {
     return !output_.empty();
 }
 
-Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters) {
+Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters) {
     return new WeatherPlugin(baseConstructionData, parameters);
 }

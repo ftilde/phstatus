@@ -10,7 +10,7 @@
 
 class PulseVolumePlugin : public Plugin {
 public:
-    PulseVolumePlugin(const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    PulseVolumePlugin(const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
     ~PulseVolumePlugin();
     void update();
     void updateThreaded();
@@ -38,5 +38,5 @@ private:
 };
 
 extern "C" {
-    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const ucl::Ucl& parameters);
+    Plugin* CREATE_PLUGIN (const PluginBaseConstructionData& baseConstructionData, const YAML::Node& parameters);
 }
