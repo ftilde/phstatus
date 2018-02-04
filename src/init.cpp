@@ -9,6 +9,7 @@
 #include <fstream>
 #include <chrono>
 #include <thread>
+#include <cmath>
 
 #include <yaml-cpp/yaml.h>
 
