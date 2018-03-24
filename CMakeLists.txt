@@ -123,7 +123,7 @@ INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${Boost_LIBRARIES})
 
-# TODO make this conditional
+# TODO make these conditional
 ###################################################################################
 # curl
 ###################################################################################
@@ -153,3 +153,20 @@ ENDIF()
 INCLUDE_DIRECTORIES(${PULSEAUDIO_INCLUDE_DIR})
 LINK_DIRECTORIES(${PULSEAUDIO_LIBRARY_DIRS})
 TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${PULSEAUDIO_LIBRARY})
+
+###################################################################################
+# pulseaudio
+###################################################################################
+if(NOT PKG_CONFIG_FOUND)
+  message(FATAL_ERROR "pkg-config not found.")
+else()
+  pkg_check_modules(UPOWER-GLIB REQUIRED upower-glib)
+  if(LIBCURL_FOUND)
+    message(STATUS "upower-glib found")
+    include_directories(${UPOWER-GLIB_INCLUDE_DIRS})
+    link_directories(${UPOWER-GLIB_LIBRARY_DIRS})
+    target_link_libraries(${APPLICATION_NAME} ${UPOWER-GLIB_LIBRARIES})
+  else()
+    message(FATAL_ERROR "upower-glib not found")
+  endif()
+endif()
