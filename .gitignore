@@ -1,6 +1,9 @@
 # Binary files
 bin/
 
+# Build directory
+build/
+
 # Cmake files
 CMakeCache.txt
 CMakeFiles/
@@ -8,7 +11,6 @@ Makefile
 cmake_install.cmake
 
 # Generated via cmake configuration
-src/pluginloader.cpp
 src/pluginloader.cpp
 
 # YouCompleteMe files
