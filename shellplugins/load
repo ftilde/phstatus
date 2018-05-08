@@ -1,3 +1,0 @@
-#! /bin/sh
-# load/number of cores
-awk '{ printf("↺ %.0f%%\n", $0 * 100 / 4) }' </proc/loadavg

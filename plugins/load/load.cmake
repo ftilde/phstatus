@@ -1,0 +1,2 @@
+SET(PLUGIN_SOURCES load.cpp)
+SET(PLUGIN_HEADERS load.h)
