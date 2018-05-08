@@ -1,2 +1,0 @@
-#! /bin/sh
-awk '{ printf("⌘ %0.f°C\n", $0/1000) }' < /sys/class/thermal/thermal_zone0/temp
