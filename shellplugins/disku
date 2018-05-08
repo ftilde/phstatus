@@ -1,3 +1,3 @@
 #! /bin/sh
-out=$(df -h / --output=avail | grep -v Avail)
+out=$(df -h | awk '$NF=="/"{printf "%dG", $4}')
 echo "√$out"
