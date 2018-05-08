@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -25,7 +26,10 @@ static void appendTime(std::ostringstream& ss, gint64 fullSeconds) {
     gint64 minutes = (fullSeconds/60)%60;
     gint64 seconds = fullSeconds%(60);
 
-    ss << hours << ":" << minutes << ":" << seconds;
+    ss << hours << ":";
+    ss << std::setfill('0') << std::setw(2) << minutes;
+    ss << ":";
+    ss << std::setfill('0') << std::setw(2) << seconds;
 }
 
 void Battery::update() {
