@@ -72,28 +72,9 @@ FILE(GLOB CORE_SOURCE_FILES ${CORE_SOURCE_DIR}/*.cpp)
 # Set include path for core include files
 include_directories(${CORE_INCLUDE_DIR})
 
-add_executable(${APPLICATION_NAME} ${CORE_SOURCE_FILES} ${STATUS_PLUGIN_SOURCES} bars/lemonbar.cpp)
-set_property(TARGET ${APPLICATION_NAME} PROPERTY CXX_STANDARD 14)
-set_property(TARGET ${APPLICATION_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
-
-###################################################################################
-# i3ipc_glib
-###################################################################################
-# TODO: Move this to an cmake module?
 include(FindPkgConfig)
-if(NOT PKG_CONFIG_FOUND)
-  message(FATAL_ERROR "pkg-config not found.")
-else()
-  pkg_check_modules(I3IPC_GLIB REQUIRED i3ipc-glib-1.0)
-  if(I3IPC_GLIB_FOUND)
-    message(STATUS "i3ipc-glib found")
-    include_directories(${I3IPC_GLIB_INCLUDE_DIRS})
-    link_directories(${I3IPC_GLIB_LIBRARY_DIRS})
-    target_link_libraries(${APPLICATION_NAME} ${I3IPC_GLIB_LIBRARIES})
-  else()
-    message(FATAL_ERROR "i3ipc-glib not found")
-  endif()
-endif()
+
+SET(LINK_LIBRARIES_LIST "")
 
 ###################################################################################
 # yaml-cpp
@@ -106,14 +87,14 @@ ELSE()
 ENDIF()
 INCLUDE_DIRECTORIES(${YAML_CPP_INCLUDE_DIR})
 LINK_DIRECTORIES(${YAML_CPP_LIBRARY_DIRS})
-TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${YAML_CPP_LIBRARIES})
+LIST(APPEND LINK_LIBRARIES_LIST ${YAML_CPP_LIBRARIES})
 
 ###################################################################################
 # pthreads
 ###################################################################################
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-target_link_libraries(${APPLICATION_NAME} Threads::Threads)
+LIST(APPEND LINK_LIBRARIES_LIST Threads::Threads)
 
 ###################################################################################
 # boost
@@ -121,7 +102,7 @@ target_link_libraries(${APPLICATION_NAME} Threads::Threads)
 FIND_PACKAGE(Boost REQUIRED COMPONENTS filesystem program_options)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
-TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${Boost_LIBRARIES})
+LIST(APPEND LINK_LIBRARIES_LIST ${Boost_LIBRARIES})
 
 # TODO make these conditional
 ###################################################################################
@@ -135,7 +116,7 @@ else()
     message(STATUS "libcurl found")
     include_directories(${LIBCURL_INCLUDE_DIRS})
     link_directories(${LIBCURL_LIBRARY_DIRS})
-    target_link_libraries(${APPLICATION_NAME} ${LIBCURL_LIBRARIES})
+    LIST(APPEND LINK_LIBRARIES_LIST ${LIBCURL_LIBRARIES})
   else()
     message(FATAL_ERROR "libcurl not found")
   endif()
@@ -152,7 +133,7 @@ ELSE()
 ENDIF()
 INCLUDE_DIRECTORIES(${PULSEAUDIO_INCLUDE_DIR})
 LINK_DIRECTORIES(${PULSEAUDIO_LIBRARY_DIRS})
-TARGET_LINK_LIBRARIES(${APPLICATION_NAME} ${PULSEAUDIO_LIBRARY})
+LIST(APPEND LINK_LIBRARIES_LIST ${PULSEAUDIO_LIBRARY})
 
 ###################################################################################
 # pulseaudio
@@ -165,8 +146,37 @@ else()
     message(STATUS "upower-glib found")
     include_directories(${UPOWER-GLIB_INCLUDE_DIRS})
     link_directories(${UPOWER-GLIB_LIBRARY_DIRS})
-    target_link_libraries(${APPLICATION_NAME} ${UPOWER-GLIB_LIBRARIES})
+    LIST(APPEND LINK_LIBRARIES_LIST ${UPOWER-GLIB_LIBRARIES})
   else()
     message(FATAL_ERROR "upower-glib not found")
   endif()
 endif()
+
+###################################################################################
+# i3ipc_glib
+###################################################################################
+# TODO: Move this to an cmake module?
+if(NOT PKG_CONFIG_FOUND)
+  message(FATAL_ERROR "pkg-config not found.")
+else()
+  pkg_check_modules(I3IPC_GLIB REQUIRED i3ipc-glib-1.0)
+  if(I3IPC_GLIB_FOUND)
+    message(STATUS "i3ipc-glib found")
+    include_directories(${I3IPC_GLIB_INCLUDE_DIRS})
+    link_directories(${I3IPC_GLIB_LIBRARY_DIRS})
+    message(STATUS "i3ipc lib dirs: ${I3IPC_GLIB_LIBRARY_DIRS}")
+    LIST(APPEND LINK_LIBRARIES_LIST ${I3IPC_GLIB_LIBRARIES})
+    message(STATUS "i3ipc libs: ${I3IPC_GLIB_LIBRARIES}")
+  else()
+    message(FATAL_ERROR "i3ipc-glib not found")
+  endif()
+endif()
+
+
+# finally add the executable (AFTER setting link_directories!
+add_executable(${APPLICATION_NAME} ${CORE_SOURCE_FILES} ${STATUS_PLUGIN_SOURCES} bars/lemonbar.cpp)
+set_property(TARGET ${APPLICATION_NAME} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${APPLICATION_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
+
+# and NOW set the target_link_libraries
+target_link_libraries(${APPLICATION_NAME} ${LINK_LIBRARIES_LIST})
