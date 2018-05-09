@@ -1,0 +1,2 @@
+SET(PLUGIN_SOURCES memory.cpp)
+SET(PLUGIN_HEADERS memory.h)
