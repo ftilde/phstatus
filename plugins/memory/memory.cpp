@@ -8,7 +8,7 @@
 #include <err.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
-static bool getFreeMemPercentage(int& result) {
+static bool getFreeMemPercentage(int& res) {
     int result;
     size_t result_size = sizeof(result);
 
@@ -22,7 +22,7 @@ static bool getFreeMemPercentage(int& result) {
     }
     int freePageCount = result;
 
-    result = 100*(totalPageCount-freePageCount)/totalPageCount;
+    res = 100*(totalPageCount-freePageCount)/totalPageCount;
     return true;
 }
 #elif defined(linux)
