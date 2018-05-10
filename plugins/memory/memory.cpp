@@ -8,25 +8,39 @@
 #include <err.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
-static int getFreeMemPercentage() {
+static bool getFreeMemPercentage(int& result) {
     int result;
     size_t result_size = sizeof(result);
 
     if(sysctlbyname("vm.stats.vm.v_page_count", &result, &result_size, NULL, 0)) {
-        return -1; // obviously invalid
+        return false;
     }
     int totalPageCount = result;
 
     if(sysctlbyname("vm.stats.vm.v_free_count", &result, &result_size, NULL, 0)) {
-        return -1; // obviously invalid
+        return false;
     }
     int freePageCount = result;
 
-    return 100*(totalPageCount-freePageCount)/totalPageCount;
+    result = 100*(totalPageCount-freePageCount)/totalPageCount;
+    return true;
 }
+#elif defined(linux)
+#include <unistd.h>
+static bool getFreeMemPercentage(int& result) {
+    long totalPageCount = sysconf(_SC_PHYS_PAGES);
+    if(totalPageCount < 0) {
+        return false;
+    }
 
-#elif defined(LINUX)
-#error Linux not yet supported
+    long freePageCount = sysconf(_SC_AVPHYS_PAGES);
+    if(freePageCount < 0) {
+        return false;
+    }
+
+    result = 100*(totalPageCount-freePageCount)/totalPageCount;
+    return true;
+}
 #else
 #error Plattform not supported
 #endif
@@ -47,7 +61,11 @@ Memory::~Memory() {
 }
 
 void Memory::update() {
-    int memUsage = getFreeMemPercentage();
+    int memUsage;
+    if(!getFreeMemPercentage(memUsage)) {
+        text_ = "Failed to get memory info";
+        return;
+    }
 
     const Color* color = nullptr;
     if(memUsage > highThreshold_) {

@@ -3,26 +3,42 @@
 
 #include <iostream>
 
+// Symbolicly set obviously invalid temperature to somehow convey
 
 #if defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #include <err.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
-static float getCurrentTemperature(const char* zone) {
+static bool getCurrentTemperature(const char* zone, float& res) {
     int result;
     std::ostringstream full_zone;
     full_zone << "hw.acpi.thermal." << zone << ".temperature";
     size_t result_size = sizeof(result);
     if(sysctlbyname(full_zone.str().c_str(), &result, &result_size, NULL, 0)) {
-        return -1000; // obviously invalid
+        return false;
     }
     int tmpInDecikelvin = result;
 
-    return (tmpInDecikelvin-2731)*0.1f;
+    res = (tmpInDecikelvin-2731)*0.1f;
+    return true;
 }
+#elif defined(linux)
+#include <fstream>
+static bool getCurrentTemperature(const char* zone, float& res) {
+    std::ostringstream file_name;
+    file_name << "/sys/class/thermal/" << zone << "/temp";
 
-#elif defined(LINUX)
-#error Linux not yet supported
+    std::fstream fs(file_name.str().c_str(), std::fstream::in);
+
+    if(fs.fail()) {
+        return false;
+    }
+    float milliCelsius;
+    fs >> milliCelsius;
+
+    res = milliCelsius/1000.0f;
+    return true;
+}
 #else
 #error Plattform not supported
 #endif
@@ -44,7 +60,11 @@ Thermal::~Thermal() {
 }
 
 void Thermal::update() {
-    float temperature = getCurrentTemperature(zone_.c_str());
+    float temperature;
+    if(!getCurrentTemperature(zone_.c_str(), temperature)) {
+        text_ = "Failed to get temperature";
+        return;
+    }
 
     const Color* color = nullptr;
     if(temperature > highThreshold_) {

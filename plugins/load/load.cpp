@@ -5,17 +5,18 @@
 #include <unistd.h>
 
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(LINUX)
+#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(linux)
 #include <err.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
-static float getCurrentLoad() {
+static bool getCurrentLoad(float& result) {
     double loadavg[3];
 
     if (getloadavg(loadavg, 3) == -1)
-        return -1;
+        return false;
 
-    return loadavg[0];
+    result =  loadavg[0];
+    return true;
 }
 #else
 #error Plattform not supported
@@ -37,8 +38,16 @@ Load::~Load() {
 }
 
 void Load::update() {
-    float load = getCurrentLoad();
+    float load;
+    if(!getCurrentLoad(load)) {
+        text_ = "Failed to get load";
+        return;
+    }
+
     auto numProcs = sysconf(_SC_NPROCESSORS_ONLN);
+    if(numProcs < 0) {
+        text_ = "Failed to get number of processors";
+    }
     float relativeLoad = load/numProcs;
 
     const Color* color = nullptr;
