@@ -66,7 +66,7 @@ int main(int argc, char** argv) {
     if(s) {
         s->mainLoop();
     } else {
-        std::cerr << "Could not create status" << std::endl;
+        std::cerr << "Could not create phstatus bar" << std::endl;
         return 1;
     }
 }

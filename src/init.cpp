@@ -147,7 +147,19 @@ static Plugin* loadPluginFromConfig(const PluginLoader& pLoader, const StaticPlu
             std::cerr << "Invalid hook: " << updateHook << std::endl;
         }
     }
-    return pLoader.loadPlugin(name, constructionData, pluginNode["parameters"]);
+    YAML::Node parameters;
+    if(pluginNode["parameters"].IsDefined()) {
+        parameters = pluginNode["parameters"];
+    } else {
+        parameters = YAML::Node(YAML::NodeType::Map);
+    }
+
+    if(!parameters.IsMap()) {
+        std::cerr << "Plugin parameters is not a map:" << std::endl;
+        std::cerr << parameters << std::endl;
+        return nullptr;
+    }
+    return pLoader.loadPlugin(name, constructionData, parameters);
 }
 
 Status* Status::loadFromConfig(const std::string& configPath) {
@@ -158,7 +170,6 @@ Status* Status::loadFromConfig(const std::string& configPath) {
     } catch(YAML::ParserException e) {
         std::cerr << "Could not parse config file " << configPath << std::endl;
         std::cerr << e.what() << std::endl;
-        //TODO show some errors or something
         return nullptr;
     } catch(YAML::BadFile e) {
         std::cerr << "Could not open config file " << configPath << std::endl;
@@ -206,6 +217,8 @@ Status* Status::loadFromConfig(const std::string& configPath) {
             Plugin* plugin = loadPluginFromConfig(pLoader, pluginInitInfo, pluginNode);
             if(plugin) {
                 status->addPluginLeft(plugin);
+            } else {
+                return nullptr;
             }
         }
     }
@@ -216,6 +229,8 @@ Status* Status::loadFromConfig(const std::string& configPath) {
             Plugin* plugin = loadPluginFromConfig(pLoader, pluginInitInfo, pluginNode);
             if(plugin) {
                 status->addPluginRight(plugin);
+            } else {
+                return nullptr;
             }
         }
     }
