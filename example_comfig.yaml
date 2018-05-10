@@ -1,0 +1,92 @@
+separator: "  |  "
+separatorColor: 8
+tickLength: 1
+leftAlignedPlugins: [
+    {
+        name: "i3workspace",
+        updateHooks: ["workspace"],
+        parameters: {
+            monitorNames: ["HDMI-0", "DisplayPort-1"],
+        },
+    },
+]
+rightAlignedPlugins: [
+    {
+        name: "i3activewindow",
+        updateHooks: ["window"],
+        parameters: {
+            maxChars: 50,
+        },
+    },
+    {
+        name: "pulsevolume",
+        parameters: {
+            #sinkName: "@DEFAULT_SINK@",
+            sinkName: "alsa_output.pci-0000_00_1b.0.analog-stereo",
+            portSymbols: {
+                "analog-output-headphones": "☊",
+                "analog-output-lineout": "♫",
+            },
+        },
+    },
+    {
+        name: "disku",
+        updatePeriod: 60,
+    },
+    {
+        name: "memory",
+        updatePeriod: 5,
+    },
+    {
+        name: "battery",
+        updatePeriod: 5,
+    },
+    {
+        name: "thermal",
+        parameters: {
+            zone: "thermal_zone0",
+        },
+        updatePeriod: 5,
+    },
+    {
+        name: "load",
+        updatePeriod: 5,
+    },
+    {
+        name: "weather",
+        updatePeriod: 300,
+        parameters: {
+            airportCode: "VQPR",
+        },
+    },
+    {
+        name: "time",
+        updatePeriod: 1,
+    },
+]
+bar: {
+    backgroundColor: 0,
+    foregroundColor: 15,
+    font: "DejaVuSans-8",
+    height: 17,
+    output: "DisplayPort-1",
+    bottom: true,
+}
+colors: [
+    {r: 0x18, g: 0x18, b: 0x18}, #black
+    {r: 0x7f, g: 0x00, b: 0x00}, #red
+    {r: 0x00, g: 0x7f, b: 0x00}, #green
+    {r: 0xc8, g: 0x6e, b: 0x2a}, #yellow
+    {r: 0x1b, g: 0x61, b: 0x80}, #blue
+    {r: 0x7f, g: 0x00, b: 0x7f}, #magenta
+    {r: 0x00, g: 0x7f, b: 0x7f}, #cyan
+    {r: 0x7f, g: 0x7f, b: 0x7f}, #white
+    {r: 0x30, g: 0x30, b: 0x30}, #bright black
+    {r: 0xff, g: 0x00, b: 0x00}, #bright red
+    {r: 0x00, g: 0xff, b: 0x00}, #bright green
+    {r: 0xff, g: 0xff, b: 0x00}, #bright yellow
+    {r: 0x2a, g: 0x98, b: 0xc8}, #bright blue
+    {r: 0xff, g: 0x00, b: 0xff}, #bright magenta
+    {r: 0x00, g: 0xff, b: 0xff}, #bright cyan
+    {r: 0xd0, g: 0xd0, b: 0xd0}, #bright white
+]
