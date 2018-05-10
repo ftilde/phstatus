@@ -8,9 +8,14 @@ phstatus is an alternative status bar for i3. The main feature compared to i3sta
 I consider phstatus to be mostly complete and use it for myself. In retrospect I'm not too happy with some design decisions that I made along the way, but not enough to rewrite it. It still works as it is.
 Moreover, the documentation is quite lacking. If you want to use phstatus, I can write some up some more information.
 
+**Supported Platforms**
+
+Some plugins (like "memory" and "thermal") use platform specific functionality. As a result, phstatus so far only works on Linux and FreeBSD.
+If you do not build these plugins, phstatus may work on other platforms, but this is untested.
+
 **Building**
 
-* Install dependencies in `dependencies.txt`.
+* Install dependencies specified in dependencies.txt.
 * Configure it: `mkdir build && cd build && cmake ../`
 * Build it: `make`
 
