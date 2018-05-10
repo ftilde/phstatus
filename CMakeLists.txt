@@ -21,12 +21,13 @@ FILE(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 ###################################################################################
 # Plugins
 ###################################################################################
-SET(plugin_base_dir plugins)
+SET(PLUGIN_BASE_DIR plugins)
+SET(SHELL_PLUGIN_BASE_DIR shellplugins)
 # Prepare plugin information insertion
 SET(PLUGIN_INCLUDE_LIST "")
 SET(PLUGIN_LOAD_LIST "")
 
-FILE(GLOB plugin_list ${plugin_base_dir}/*/*.cmake)
+FILE(GLOB plugin_list ${PLUGIN_BASE_DIR}/*/*.cmake)
 FOREACH(plugin_file ${plugin_list})
   GET_FILENAME_COMPONENT(plugin_dir ${plugin_file} DIRECTORY)
   GET_FILENAME_COMPONENT(plugin_name ${plugin_dir} NAME)
@@ -172,6 +173,9 @@ else()
   endif()
 endif()
 
+###################################################################################
+# Set up executable
+###################################################################################
 
 # finally add the executable (AFTER setting link_directories!
 add_executable(${APPLICATION_NAME} ${CORE_SOURCE_FILES} ${STATUS_PLUGIN_SOURCES} bars/lemonbar.cpp)
@@ -180,3 +184,11 @@ set_property(TARGET ${APPLICATION_NAME} PROPERTY CXX_STANDARD_REQUIRED ON)
 
 # and NOW set the target_link_libraries
 target_link_libraries(${APPLICATION_NAME} ${LINK_LIBRARIES_LIST})
+
+###################################################################################
+# Install files
+###################################################################################
+
+install(TARGETS ${APPLICATION_NAME} DESTINATION bin)
+FILE(GLOB shellplugin_list ${SHELL_PLUGIN_BASE_DIR}/*)
+install(FILES ${shellplugin_list} DESTINATION ${DEFAULT_SHELL_PLUGIN_PATH} PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
