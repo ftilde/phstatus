@@ -167,11 +167,11 @@ Status* Status::loadFromConfig(const std::string& configPath) {
     YAML::Node rootNode;
     try {
         rootNode = YAML::LoadFile(configPath);
-    } catch(YAML::ParserException e) {
+    } catch(YAML::ParserException& e) {
         std::cerr << "Could not parse config file " << configPath << std::endl;
         std::cerr << e.what() << std::endl;
         return nullptr;
-    } catch(YAML::BadFile e) {
+    } catch(YAML::BadFile& e) {
         std::cerr << "Could not open config file " << configPath << std::endl;
         return nullptr;
     }
