@@ -29,8 +29,8 @@ Load::Load(const PluginBaseConstructionData& baseConstructionData, const YAML::N
     , lowColor_(getColorMap()[ColorIndex::BRIGHT_WHITE])
     , mediumColor_(getColorMap()[ColorIndex::BRIGHT_YELLOW])
     , highColor_(getColorMap()[ColorIndex::BRIGHT_RED])
-    , mediumThreshold_(0.2)
-    , highThreshold_(0.8)
+    , mediumThreshold_(0.5)
+    , highThreshold_(1.0)
 {
 }
 
@@ -44,16 +44,10 @@ void Load::update() {
         return;
     }
 
-    auto numProcs = sysconf(_SC_NPROCESSORS_ONLN);
-    if(numProcs < 0) {
-        text_ = "Failed to get number of processors";
-    }
-    float relativeLoad = load/numProcs;
-
     const Color* color = nullptr;
-    if(relativeLoad > highThreshold_) {
+    if(load > highThreshold_) {
         color = &highColor_;
-    } else if(relativeLoad > mediumThreshold_) {
+    } else if(load > mediumThreshold_) {
         color = &mediumColor_;
     } else {
         color = &lowColor_;
@@ -61,7 +55,7 @@ void Load::update() {
 
     std::ostringstream ss;
     ss.precision(2);
-    ss << "↺ "<< (relativeLoad*100)<< "%";
+    ss << "↺ " << std::fixed << load;
 
     text_ = getFormater().addColor(ss.str(), *color);
 }
