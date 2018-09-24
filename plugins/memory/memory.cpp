@@ -27,18 +27,28 @@ static bool getFreeMemPercentage(int& result) {
 }
 #elif defined(linux)
 #include <unistd.h>
+#include <fstream>
 static bool getFreeMemPercentage(int& result) {
-    long totalPageCount = sysconf(_SC_PHYS_PAGES);
-    if(totalPageCount < 0) {
+    std::ifstream infile("/proc/meminfo");
+
+    std::string name;
+    uint64_t quantity;
+    std::string unit;
+    uint64_t total = 0;
+    uint64_t available = 0;
+    while(infile >> name >> quantity >> unit) {
+        if(name == "MemTotal:") {
+            total = quantity;
+        } else if(name == "MemAvailable:") {
+            available = quantity;
+        }
+    }
+
+    if(total == 0) {
         return false;
     }
 
-    long freePageCount = sysconf(_SC_AVPHYS_PAGES);
-    if(freePageCount < 0) {
-        return false;
-    }
-
-    result = 100*(totalPageCount-freePageCount)/totalPageCount;
+    result = 100*(total-available)/total;
     return true;
 }
 #else
