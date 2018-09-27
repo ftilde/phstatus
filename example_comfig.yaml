@@ -62,6 +62,9 @@ rightAlignedPlugins: [
     {
         name: "time",
         updatePeriod: 1,
+        parameters: {
+            format: "%a %d.%m.%Y %H:%M:%S",
+        },
     },
 ]
 bar: {

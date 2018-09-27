@@ -1,0 +1,2 @@
+SET(PLUGIN_SOURCES time.cpp)
+SET(PLUGIN_HEADERS time.h)
