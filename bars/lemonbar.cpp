@@ -90,6 +90,9 @@ LemonBar::LemonBar(YAML::Node node, ColorMap& colorMap)
     argv.append(" ");
     argv.append(std::to_string(g->w) + "x" + std::to_string(readOr(node["height"], 10)) + "+" + std::to_string(g->x) + "+0");
     argv.append(" ");
+    argv.append("-a");
+    argv.append("20");
+    argv.append(" ");
     if(node["bottom"]) {
         argv.append("-b");
         argv.append(" ");
