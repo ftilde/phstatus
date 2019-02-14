@@ -78,10 +78,9 @@ std::string WeatherPlugin::formatWeatherFromReply(std::stringstream& stream) con
 }
 void WeatherPlugin::getWeather() {
     curl_easy_setopt(curl_, CURLOPT_URL, url_.c_str());
-    /* example.com is redirected, so we tell libcurl to follow redirection */
     curl_easy_setopt(curl_, CURLOPT_FOLLOWLOCATION, 1L);
-    curl_easy_setopt(curl_, CURLOPT_NOSIGNAL, 1); //Prevent "longjmp causes uninitialized stack frame" bug
     curl_easy_setopt(curl_, CURLOPT_ACCEPT_ENCODING, "deflate");
+    curl_easy_setopt(curl_, CURLOPT_NOSIGNAL, 1); // Make curl try to avoid SIGPIPE
     std::stringstream out;
     curl_easy_setopt(curl_, CURLOPT_WRITEFUNCTION, write_data);
     curl_easy_setopt(curl_, CURLOPT_WRITEDATA, &out);

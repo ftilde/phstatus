@@ -2,6 +2,7 @@
 #include <string>
 #include <vector>
 #include <iomanip>
+#include <signal.h>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -60,6 +61,20 @@ int main(int argc, char** argv) {
     if(!boost::filesystem::exists(configPath)) {
         std::cerr << "Config file \"" << configPath << "\" does not exist." << std::endl;
         return 1;
+    }
+
+    // OpenSSL (called by curl in a plugin) may cause a SIGPIPE.
+    // Curl tries to automatically ignore SIGPIPE for the function call,
+    // but seems to fail in some instances.
+    // As a workaround, we globally block SIGPIPE in the main thread (and thus by default
+    // for all threads spawned later, as well) and make sure that no SIGPIPE is received
+    // by accident.
+    sigset_t set;
+    sigemptyset(&set);
+    sigaddset(&set, SIGPIPE);
+    if (pthread_sigmask(SIG_BLOCK, &set, NULL) != 0) {
+        std::cerr << "Failed to block SIGPIPE" << std::endl;
+        return 2;
     }
 
     std::unique_ptr<Status> s(Status::loadFromConfig(configPath));
