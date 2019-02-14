@@ -12,6 +12,7 @@ cmake_install.cmake
 
 # Generated via cmake configuration
 src/pluginloader.cpp
+include/build_config.h
 
 # YouCompleteMe files
 .ycm_extra_conf.py*
