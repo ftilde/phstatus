@@ -30,19 +30,23 @@ PulseVolumePlugin::~PulseVolumePlugin() {
 }
 
 void PulseVolumePlugin::writeVolumeInfo(const pa_sink_info i) {
-    pa_volume_t vol = pa_cvolume_avg(&i.volume);
 
     std::string output;
-    if(portSymbols_.find(i.active_port->name) != portSymbols_.end()) {
-        output = portSymbols_[i.active_port->name];
+    if(i.active_port) {
+        if(portSymbols_.find(i.active_port->name) != portSymbols_.end()) {
+            output = portSymbols_[i.active_port->name];
+        } else {
+            output = i.active_port->name;
+            output += ":";
+        }
     } else {
-        output = i.active_port->name;
-        output += ":";
+        output = "No port:";
     }
     output += " ";
     if(i.mute) {
         output += "off";
     } else {
+        pa_volume_t vol = pa_cvolume_avg(&i.volume);
         unsigned int intvol = static_cast<unsigned int>(std::round(static_cast<float>(vol) / PA_VOLUME_NORM * 100));
         output += std::to_string(intvol) + "%";
     }
