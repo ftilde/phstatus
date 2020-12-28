@@ -5,10 +5,12 @@
 #include <unistd.h>
 
 
-#if defined(__FreeBSD__) || defined(__FreeBSD_kernel__) || defined(linux)
+#if defined(__FreeBSD__) || defined(linux)
 #include <err.h>
 #include <sys/types.h>
+#if !defined(linux)
 #include <sys/sysctl.h>
+#endif
 static bool getCurrentLoad(float& result) {
     double loadavg[3];
 
