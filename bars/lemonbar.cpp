@@ -17,7 +17,7 @@ Geometry* getGeometry(const std::string& outputName) {
     redi::ipstream xrandrProc("xrandr --current");
     std::string line;
     std::smatch match;
-    std::regex reg ("^" + outputName + " (?:\\w+ )?\\w+ (.+?)x(.+?)\\+(.+?)\\+(.+?).*");
+    std::regex reg ("^" + outputName + " (?:\\w+ )?\\w+ (\\d+)x(\\d+)\\+(\\d+)\\+(\\d+)");
     while (std::getline(xrandrProc, line)) {
         if(std::regex_search(line, match, reg)) {
             std::string wstr = match[1].str();
@@ -86,9 +86,13 @@ LemonBar::LemonBar(YAML::Node node, ColorMap& colorMap)
     argv.append(readOr(node["font"], std::string("DejaVu-8")));
     argv.append(" ");
     std::unique_ptr<Geometry> g = std::unique_ptr<Geometry>(getGeometry(readOr(node["output"], std::string(""))));
+    std::cout << "x" << g->x << std::endl;
+    std::cout << "y" << g->y << std::endl;
+    std::cout << "w" << g->w << std::endl;
+    std::cout << "h" << g->h << std::endl;
     argv.append("-g");
     argv.append(" ");
-    argv.append(std::to_string(g->w) + "x" + std::to_string(readOr(node["height"], 10)) + "+" + std::to_string(g->x) + "+0");
+    argv.append(std::to_string(g->w) + "x" + std::to_string(readOr(node["height"], 10)) + "+" + std::to_string(g->x) + "+" + std::to_string(g->y));
     argv.append(" ");
     argv.append("-a");
     argv.append("20");
